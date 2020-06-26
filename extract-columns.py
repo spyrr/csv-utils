@@ -8,7 +8,7 @@ import click
 def process(heads: str, path: str) -> pd.DataFrame:
     print(f'[*] Start to extract columns from CSV files')
     curdir = os.getcwd()
-    print(f'[*] Current dir, {curdir}')
+    #print(f'[*] Current dir, {curdir}')
 
     os.chdir(path)
     print(f'[*] Target directory, {os.getcwd()}')
@@ -18,15 +18,19 @@ def process(heads: str, path: str) -> pd.DataFrame:
 
     for fn in files:
         if os.path.isfile(fn) is False:
-            print(f'[|] (!) {fn} not found.')
+            print(f'[*] (!) {fn} not found.')
             sys.exit(2)
-        print(f'[|] Read file, {fn}')
+        print(f'    File, {fn} => ', end='')
 
         _b = pd.read_csv(fn, dtype=str)
         _b.columns = map(str.upper, _b.columns) # to upper case, foreach headers
 
-        print(f'[*] Save the output to new_{fn}')
-        _b[heads].to_csv(f'new_{fn}', index=False)
+        try:
+            _b[heads].to_csv(f'new_{fn}', index=False)
+            print(f'saved to new_{fn}')
+        except KeyError:
+            print(f'(!) There is no matching header(s): {heads}')
+
 
     print(f'[*] Finish')
 
