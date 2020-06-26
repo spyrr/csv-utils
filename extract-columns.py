@@ -4,12 +4,21 @@ import pandas.errors
 import sys
 import os
 import click
+import datetime
 
 
 def process(heads: str, path: str) -> pd.DataFrame:
     print(f'[*] Start to extract columns from CSV files')
     curdir = os.getcwd()
     #print(f'[*] Current dir, {curdir}')
+    try:
+        resdir = f'{curdir}/results-' + datetime.datetime.now().strftime('%y%m%d-%H%M%S')
+        os.mkdir(resdir)
+    except FileExistError:
+        resdir = f'{curdir}/results-' + datetime.datetime.now().strftime('%y%m%d-%H%M%S')
+        os.mkdir(resdir)
+
+    print(f'[*] Result directory, {resdir}')
 
     os.chdir(path)
     print(f'[*] Target directory, {os.getcwd()}')
@@ -25,7 +34,7 @@ def process(heads: str, path: str) -> pd.DataFrame:
         try:
             _b = pd.read_csv(fn, dtype=str)
             _b.columns = map(str.upper, _b.columns) # to upper case, foreach headers
-            _b[heads].to_csv(f'new_{fn}', index=False)
+            _b[heads].to_csv(f'{resdir}/new_{fn}', index=False)
             print(f'saved to new_{fn}')
         except KeyError:
             print(f'(!) There is no matching header(s): {heads}')
