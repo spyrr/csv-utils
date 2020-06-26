@@ -16,7 +16,7 @@ def csv_concat(heads: str, path: str) -> pd.DataFrame:
     print(f'[|] Current dir, {curdir}')
 
     os.chdir(path)
-    print(f'[|] Directory placed in target files, {os.getcwd()}')
+    print(f'[|] Target directory, {os.getcwd()}')
 
     files = list(filter(lambda x: x.find('.csv') != -1, os.listdir()))
 
@@ -47,7 +47,7 @@ def csv_concat(heads: str, path: str) -> pd.DataFrame:
 @click.option('-p', '--path', default='.', help='Path of input directory')
 @click.option('-o', '--output', default='output.csv', help='Filename of output file')
 def main(columns: str, path: str, output: str):
-    """Concat CSV Files from the path to output"""
+    """Concat CSV Files"""
     df = csv_concat(columns, path.strip())
     if df is None:
         print(f'[*] (!) Can`t find any CSV file.')
