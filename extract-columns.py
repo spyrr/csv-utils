@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import pandas as pd
+import pandas.errors
 import sys
 import os
 import click
@@ -21,16 +22,15 @@ def process(heads: str, path: str) -> pd.DataFrame:
             print(f'[*] (!) {fn} not found.')
             sys.exit(2)
         print(f'    File, {fn} => ', end='')
-
-        _b = pd.read_csv(fn, dtype=str)
-        _b.columns = map(str.upper, _b.columns) # to upper case, foreach headers
-
         try:
+            _b = pd.read_csv(fn, dtype=str)
+            _b.columns = map(str.upper, _b.columns) # to upper case, foreach headers
             _b[heads].to_csv(f'new_{fn}', index=False)
             print(f'saved to new_{fn}')
         except KeyError:
             print(f'(!) There is no matching header(s): {heads}')
-
+        except pandas.errors.EmptyDataError:
+            print(f'(!) Empty file.')
 
     print(f'[*] Finish')
 
