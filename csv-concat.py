@@ -10,8 +10,8 @@ def save(filename: str, df: pd.DataFrame):
     df.to_csv(filename, index=False)
 
 
-def merge(heads: str, path: str) -> pd.DataFrame:
-    print(f'[+] Start to merge CSV files')
+def csv_concat(heads: str, path: str) -> pd.DataFrame:
+    print(f'[+] Start to concat CSV files')
     curdir = os.getcwd()
     print(f'[|] Current dir, {curdir}')
 
@@ -20,13 +20,13 @@ def merge(heads: str, path: str) -> pd.DataFrame:
 
     files = list(filter(lambda x: x.find('.csv') != -1, os.listdir()))
 
-    concat = lambda merged, _b: _b if merged is None else pd.concat([merged, _b])
+    concat = lambda c, _b: _b if c is None else pd.concat([c, _b])
     if heads is not None:
         print(f'[|] Headers: {heads}')
         heads = heads.strip().upper().split(',')
-        concat = lambda merged, _b: _b if merged is None else pd.concat([merged[heads], _b[heads]])
+        concat = lambda c, _b: _b if c is None else pd.concat([c[heads], _b[heads]])
 
-    merged = None
+    c = None
     for fn in files:
         if os.path.isfile(fn) is False:
             print(f'[|] (!) {fn} not found.')
@@ -35,26 +35,26 @@ def merge(heads: str, path: str) -> pd.DataFrame:
 
         _b = pd.read_csv(fn, dtype=str)
         _b.columns = map(str.upper, _b.columns)
-        merged = concat(merged, _b)
+        c = concat(c, _b)
 
     print(f'[*] Finish')
     os.chdir(curdir)
-    return merged
+    return c 
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option('-c', '--columns', default=None, help='Head of columns (delimeter: ,)')
 @click.option('-p', '--path', default='.', help='Path of input directory')
-@click.option('-o', '--output', default='output.csv', help='Filename of merged CSV file')
+@click.option('-o', '--output', default='output.csv', help='Filename of output file')
 def main(columns: str, path: str, output: str):
-    """Merge CSV Files from the path to output"""
-    merged_df = merge(columns, path.strip())
-    if merged_df is None:
+    """Concat CSV Files from the path to output"""
+    df = csv_concat(columns, path.strip())
+    if df is None:
         print(f'[*] (!) Can`t find any CSV file.')
         print(click.get_current_context().get_help())
         sys.exit(-1)
     else:
-        save(output, merged_df)
+        save(output, df)
     
     
 
