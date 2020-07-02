@@ -34,10 +34,15 @@ def process(heads: str, path: str) -> pd.DataFrame:
         try:
             _b = pd.read_csv(fn, dtype=str, error_bad_lines=False)
             _b.columns = map(str.upper, _b.columns) # to upper case, foreach headers
-            _b[heads].to_csv(f'{resdir}/new_{fn}', index=False)
+
+            df = pd.DataFrame(columns=heads)
+            df = pd.concat([df, _b])
+
+            df[heads].to_csv(f'{resdir}/new_{fn}', index=False)
             print(f'saved to new_{fn}')
-        except KeyError:
-            print(f'(!) there is no matching header(s): {heads}')
+            del df
+        # except KeyError:
+        #     print(f'(!) there is no matching header(s): {heads}')
         except pandas.errors.EmptyDataError:
             print(f'(!) empty file.')
         except pandas.errors.ParserError:
